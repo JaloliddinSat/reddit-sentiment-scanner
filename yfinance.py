@@ -1,6 +1,4 @@
 from rscanner import post_scan, pick_time, ticker_generation, sort, add_data
-
-
 #from yfinance import yf
 
 def run():
