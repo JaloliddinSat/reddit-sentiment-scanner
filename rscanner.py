@@ -174,18 +174,8 @@ def sort(list1, method):
         key=lambda x: x[1][method],
         reverse=True)
     return sorted_final
-
-def run1():
-    # Main Operation ------------------------------------------------------------------------------------
-    print("Loaded tickers:", len(tickers))
-
-    Chosen_end_date = pick_time()
-    final_count, total_posts = post_scan(Chosen_end_date, tickers)
-
-    print("There is a total of", total_posts, "posts.\n")
-
-    # Add_New_Column
-    for ticker, stats in final_count.items():
+def add_data(final_count_list):
+    for ticker, stats in final_count_list.items():
         signal = (stats["bull"] - stats["bear"]) / (stats["mentions"] + 1)
         stats["signal"] = signal
 
@@ -200,9 +190,23 @@ def run1():
         else:
             stats["interpret"] = "Weak"
 
-    if not final_count:
+    if not final_count_list:
         print("No results.")
         return
+
+    return final_count_list
+
+def run1():
+    # Main Operation ------------------------------------------------------------------------------------
+    print("Loaded tickers:", len(tickers))
+
+    Chosen_end_date = pick_time()
+    final_count, total_posts = post_scan(Chosen_end_date, tickers)
+
+    print("There is a total of", total_posts, "posts.\n")
+
+    # Add_New_Column
+    add_data(final_count)
 
     # Sort
     sorted_final1 = sort(final_count, "score")
