@@ -1,13 +1,14 @@
 from dotenv import load_dotenv
 load_dotenv("local_keys.env")
-
+from datetime import date
 import praw
 import time
 import pandas as pd
 import sqlite3
 import os
-# import csv
-# from datetime import datetime
+
+#Date
+now_date = date.today().isoformat()
 
 # Data Base
 conn = sqlite3.connect("database.db")
@@ -107,7 +108,39 @@ def pick_time():
     current_date = time.time()
     end_date = current_date - time_rollback
     return end_date
+def sort(list1, method):
+    allowed_methods = ["mentions", "bull", "bear", "score"]
+    if method not in allowed_methods:
+        raise ValueError("Please pick a proper method of sort.")
+    sorted_final = sorted(
+        list1.items(),
+        key=lambda x: x[1][method],
+        reverse=True)
+    return sorted_final
+def add_data(final_count_list):
+    for ticker, stats in final_count_list.items():
+        signal = (stats["bull"] - stats["bear"]) / (stats["mentions"] + 1)
+
+        stats["signal"] = signal
+        stats["score"] = stats["signal"] * stats["mentions"]
+        stats["date"] = now_date
+
+        if stats["mentions"] < 3:
+            stats["interpret"] = "Low Data"
+        elif stats["score"] >= 3:
+            stats["interpret"] = "Strong Bullish"
+        elif stats["score"] <= -3:
+            stats["interpret"] = "Strong Bearish"
+        else:
+            stats["interpret"] = "Weak"
+
+    if not final_count_list:
+        print("No results.")
+        return
+
+    return final_count_list
 def post_scan(end_date, ticker_list):
+    error_message = ("No data was collected.")
     print("_________________________________________________________________")
     print("Running Scan...")
     total_posts = 0
@@ -138,7 +171,7 @@ def post_scan(end_date, ticker_list):
                 first_wave = (t1 in text_u) or (t1 in title_u)
                 second_wave = (t2 in text_u) or (t2 in title_u)
                 if first_wave or second_wave:
-                    print(f"   {t} has been found!")
+                    print(f"{t} detected.")
                     matched.append(t)
                     ticker_count[t]["mentions"] += 1
 
@@ -159,45 +192,20 @@ def post_scan(end_date, ticker_list):
     # Filter english/ignore_words list
     for ticker, stats in non_zero.items():
         if ticker not in english_words and not (ticker in ignore_words):
+            print(f"{ticker} has been found!")
             final_count[ticker] = stats
-
-    print("Scan Complete!")
     print("_________________________________________________________________")
+    print("Scan Complete!")
 
-    return final_count, total_posts
-def sort(list1, method):
-    allowed_methods = ["mentions", "bull", "bear", "score"]
-    if method not in allowed_methods:
-        raise ValueError("Please pick a proper method of sort.")
-    sorted_final = sorted(
-        list1.items(),
-        key=lambda x: x[1][method],
-        reverse=True)
-    return sorted_final
-def add_data(final_count_list):
-    for ticker, stats in final_count_list.items():
-        signal = (stats["bull"] - stats["bear"]) / (stats["mentions"] + 1)
-        stats["signal"] = signal
+    if not final_count:
+        return error_message
+    else:
+        return final_count, total_posts
 
-        stats["score"] = stats["signal"] * stats["mentions"]
-
-        if stats["mentions"] < 3:
-            stats["interpret"] = "Low Data"
-        elif stats["score"] >= 3:
-            stats["interpret"] = "Strong Bullish"
-        elif stats["score"] <= -3:
-            stats["interpret"] = "Strong Bearish"
-        else:
-            stats["interpret"] = "Weak"
-
-    if not final_count_list:
-        print("No results.")
-        return
-
-    return final_count_list
-
-def run1():
+# main processing
+def main_rscanner():
     # Main Operation ------------------------------------------------------------------------------------
+    # print(date.today().isoformat())
     print("Loaded tickers:", len(tickers))
 
     Chosen_end_date = pick_time()
@@ -205,41 +213,46 @@ def run1():
 
     print("There is a total of", total_posts, "posts.\n")
 
-    # Add_New_Column
-    add_data(final_count)
+    # Add New Column and Sort
+    final_count= add_data(final_count)
+    sorted_final = sort(final_count, "score")
 
-    # Sort
-    sorted_final1 = sort(final_count, "score")
-    sorted_final2 = sort(final_count, "mentions")
+    return sorted_final
 
-    # Pandas DF
-    df1 = pd.DataFrame(
-        [
-            (ticker, stats["mentions"], stats["bull"], stats["bear"], stats["signal"], stats["interpret"], stats["score"])
-            for ticker, stats in sorted_final1
-        ],
-        columns=["Ticker", "Mentions", "Bull", "Bear", "Signal", "Conclusion", "Score"]
-    )
-
-    df2 = pd.DataFrame(
-        [
-            (ticker, stats["mentions"], stats["bull"], stats["bear"], stats["signal"], stats["interpret"], stats["score"])
-            for ticker, stats in sorted_final2
-        ],
-        columns=["Ticker", "Mentions", "Bull", "Bear", "Signal", "Conclusion", "Score"]
-    )
-
-    print(f"Sorted by Score: \n {df1[:10]} \n")
-    print(f"Sorted by Mentions: \n {df2[:10]}")
-
-    #--------------------------
-
-    top_10 = []
-    for ticker, stats in sorted_final1:
-        top_10.append(ticker)
-    top_10 = top_10[:10]
-
-    print(top_10)
+    #
+    #
+    # # Sort
+    #
+    # sorted_final2 = sort(final_count, "mentions")
+    #
+    # # Pandas DF
+    # df1 = pd.DataFrame(
+    #     [
+    #         (ticker, stats["mentions"], stats["bull"], stats["bear"], stats["signal"], stats["interpret"], stats["score"], stats["date"])
+    #         for ticker, stats in sorted_final1
+    #     ],
+    #     columns=["Ticker", "Mentions", "Bull", "Bear", "Signal", "Conclusion", "Score", "Date"]
+    # )
+    #
+    # df2 = pd.DataFrame(
+    #     [
+    #         (ticker, stats["mentions"], stats["bull"], stats["bear"], stats["signal"], stats["interpret"], stats["score"], stats["date"])
+    #         for ticker, stats in sorted_final2
+    #     ],
+    #     columns=["Ticker", "Mentions", "Bull", "Bear", "Signal", "Conclusion", "Score", "Date"]
+    # )
+    #
+    # print(f"Sorted by Score: \n {df1[:10]} \n")
+    # print(f"Sorted by Mentions: \n {df2[:10]}")
+    #
+    # #--------------------------
+    #
+    # top_10 = []
+    # for ticker, stats in sorted_final1:
+    #     top_10.append(ticker)
+    # top_10 = top_10[:10]
+    #
+    # print(top_10)
 
 if __name__ == "__main__":
-    run1()
+    main_rscanner()
