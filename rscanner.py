@@ -198,7 +198,8 @@ def post_scan(end_date, ticker_list):
     print("Scan Complete!")
 
     if not final_count:
-        return error_message
+        print("No data was collected for that time range.")
+        return []
     else:
         return final_count, total_posts
 
