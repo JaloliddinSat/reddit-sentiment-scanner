@@ -3,12 +3,12 @@ import sqlite3
 from sqlite3 import connect
 from setuptools.installer import fetch_build_egg
 
-conn = sqlite3.connect("user_database.db")
-curr = conn.cursor()
+DB_PATH = "user_database.db"
+CREATE_SQL = "CREATE TABLE IF NOT EXISTS scan_input (stock TEXT, score INTEGER, time_of_run TEXT, price FLOAT)"
 
-#creation of the data table
-command1 = "CREATE TABLE IF NOT EXISTS scan_input (stock TEXT, score INTEGER, time_of_run TEXT, price FLOAT)"
-curr.execute(command1)
+
+conn = sqlite3.connect(DB_PATH)
+curr = conn.cursor()
 
 # function
 def initial():
@@ -43,7 +43,10 @@ def print_select(arg):
 
     results = curr.fetchall()
     return results
-
+def _connect():
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute(CREATE_SQL)
+    return conn
 def gather_values(rscanner_data):
     ticker = rscanner_data[0]
     score = rscanner_data[1]["score"]

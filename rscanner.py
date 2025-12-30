@@ -3,9 +3,11 @@ load_dotenv("local_keys.env")
 from datetime import date
 import praw
 import time
-import pandas as pd
 import sqlite3
 import os
+
+#HardLock
+HARDLOCK_MINUTES_BACK = 10000
 
 #Date
 now_date = date.today().isoformat()
@@ -101,13 +103,19 @@ def check_for_bear(post_text, bear_words):
             count += 1
     return count
 def pick_time():
-    usertime = input("How many minutes in the past do you want to go back?: ")
-    while (not (usertime.isdigit()) or (not 0 < (int(usertime)) < 1000000)):
-        usertime = input("How many minutes in the past do you want to go back?: ")
-    time_rollback = int(usertime) * 60
-    current_date = time.time()
-    end_date = current_date - time_rollback
-    return end_date
+    return time.time() - (HARDLOCK_MINUTES_BACK * 60)
+
+    # if minutes_back is None:
+    #     usertime = input("How many minutes in the past do you want to go back?: ")
+    #     while (not (usertime.isdigit()) or (not 0 < (int(usertime)) < 1000000)):
+    #         usertime = input("How many minutes in the past do you want to go back?: ")
+    #
+    # time_rollback = int(usertime) * 60
+    # current_date = time.time()
+    # end_date = current_date - time_rollback
+    # return end_date
+
+
 def sort(list1, method):
     allowed_methods = ["mentions", "bull", "bear", "score"]
     if method not in allowed_methods:
