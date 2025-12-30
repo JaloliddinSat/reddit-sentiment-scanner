@@ -1,6 +1,5 @@
 import yfinance as yf
 import pandas as pd
-from pycparser.ply.ctokens import t_PLUS
 from rscanner import main_rscanner
 from database import main_database, print_select
 
