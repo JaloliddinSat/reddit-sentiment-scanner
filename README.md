@@ -32,3 +32,27 @@ The point of this project is to find the coorelation of reddit "hype" to the pri
 - Python 3.10+ (recommended: Python 3.11)
 - Internet connection (Reddit + yfinance)
 - Reddit API credentials (required for scanning)
+- install via 'requirements.txt'
+
+## Reddit API setup (required to run scans)
+
+The app needs Reddit API credentials to access Reddit data via PRAW.
+
+### 1) Create a Reddit App (get your keys)
+1. Log in to Reddit.
+2. Go to **User Settings → Safety & Privacy → Manage third-party app authorization**  
+   (or search “Reddit apps prefs” and open the page).
+3. Scroll to **Developed Applications** and click **Create App** (or **Create another app**).
+
+After creating it, you will see:
+- **client_id**
+- **client_secret**
+
+### 2) Create the `.env` file (in the project root)
+In the **same folder as** `README.md` and `requirements.txt`, create a file named `.env`.
+
+Mac/Linux:
+```bash
+cd <your-project-folder>
+touch .env
+
