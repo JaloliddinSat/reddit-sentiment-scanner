@@ -50,6 +50,11 @@ After creating it, you will see:
 
 ### 2) Create the `.env` file (in the project root)
 In the **same folder as** `README.md` and `requirements.txt`, create a file named `.env`.
+Here is the template that you **need** to follow:
+```bash
+REDDIT_CLIENT_ID=PASTE_CLIENT_ID_HERE
+REDDIT_CLIENT_SECRET=PASTE_CLIENT_SECRET_HERE
+```
 
 Mac/Linux:
 ```bash
