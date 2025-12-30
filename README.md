@@ -24,7 +24,7 @@ The point of this project is to find the coorelation of reddit "hype" to the pri
   - Displays a scrollable table in the UI
 
 ## Screenshots
-- ![UI Screenshot](docs/screenshot.png)
+![UI Screenshot](docs/screenshot.png)
 
 ## Requirements
 
@@ -59,4 +59,15 @@ Mac/Linux:
 ```bash
 cd <your-project-folder>
 touch .env
+```
 
+## Install + Run
+
+### 1) Install dependencies
+From the project root:
+
+Mac/Linux:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
