@@ -6,8 +6,8 @@ from tkinter import messagebox
 from main import get_growth_table, run_full_pipeline
 
 
-# ===== Colors tuned to the screenshot =====
-BG = "#F5F2EE"            # off-white page
+# Colors
+BG = "#F5F2EE"
 CARD = "#FFFFFF"
 BORDER = "#E7E3DD"
 HEADER_BG = "#FBFAF9"

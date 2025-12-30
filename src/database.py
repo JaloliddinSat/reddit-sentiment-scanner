@@ -1,6 +1,7 @@
 import sqlite3
+import os
 
-DB_PATH = "../data/user_database.db"
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "user_database.db"))
 CREATE_SQL = """
 CREATE TABLE IF NOT EXISTS scan_input (
     stock TEXT,
@@ -14,6 +15,7 @@ CREATE TABLE IF NOT EXISTS scan_input (
 """
 # function
 def _connect():
+
     conn = sqlite3.connect(DB_PATH)
     conn.execute(CREATE_SQL)
     return conn
