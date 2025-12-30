@@ -2,6 +2,8 @@
 
 A Python app that scans Reddit posts/comments for ticker mentions, scores sentiment using bull/bear keywords, stores results in SQLite, and shows a clean UI growth table that tracks price performance since the first recorded run.
 
+The point of this project is to find the coorelation of reddit "hype" to the price movements of stocks. Multiple subreddits exist which users comment and post their knowledge and opinions on specific companies. Reddit users are likely to react rather than predic; this project is prove whether either is true.
+
 ## What it does
 
 - **Run Reddit Scan + Update**
@@ -36,12 +38,3 @@ Example:
 - Python 3.10+ (recommended: Python 3.11)
 - Internet connection (Reddit + yfinance)
 - Reddit API credentials (required for scanning)
-
----
-
-## Setup
-
-### 1) Clone the repo
-```bash
-git clone <your-repo-url>
-cd <your-repo-folder>
