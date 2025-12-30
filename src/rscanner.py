@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-load_dotenv("../local_keys.env")
+load_dotenv()
 from datetime import date
 from pathlib import Path
 import praw
