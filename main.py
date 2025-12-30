@@ -46,7 +46,7 @@ def get_growth_table():
         final_output[ticker] = {
             "Price": price,
             "Original Run": date,
-            "Growth %": f"{((price_now / price) - 1)}%"
+            "Growth %": f"{(100 * ((price_now / price) - 1))}%"
         }
 
     final_output_list = list(final_output.items())

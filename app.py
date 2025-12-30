@@ -9,9 +9,11 @@ from main import get_growth_table, run_full_pipeline
 OFFWHITE = "#F6F4EF"
 BRIGHTER = "#FFFDF8"
 TEXT = "#222222"
-GREY = "#7A7A7A"
-GREEN = "#1F8F4A"
-RED = "#B23A3A"
+
+# Row background tints (subtle, Apple-ish)
+ROW_POS_BG = "#AFFFCD"   # light green tint
+ROW_NEG_BG = "#FFC1C1"   # light red tint
+ROW_NEU_BG = "#F0F0F0"   # light grey tint
 
 
 def _hex_to_rgb(h):
@@ -75,53 +77,63 @@ class App(tk.Tk):
 
         style.configure("TFrame", background=OFFWHITE)
         style.configure("TLabel", background=OFFWHITE, foreground=TEXT)
-        style.configure("TButton", padding=10)
+
+        # Better button feel + fix vertical centering (padding controls this)
+        style.configure(
+            "Primary.TButton",
+            padding=(18, 12),           # (x, y) padding; y fixes vertical centering
+            anchor="center"
+        )
+        style.configure(
+            "Secondary.TButton",
+            padding=(18, 12),
+            anchor="center"
+        )
 
         style.configure(
             "Treeview",
             background=OFFWHITE,
             fieldbackground=OFFWHITE,
             foreground=TEXT,
-            rowheight=28,
+            rowheight=34,
             borderwidth=0
         )
         style.configure("Treeview.Heading", background=OFFWHITE, foreground=TEXT)
-        style.map("Treeview", background=[("selected", "#EAE6DD")])
+        style.map("Treeview", background=[("selected", "#BAB4A7")])
 
     def _build_layout(self):
-        # Left list panel
-        left = ttk.Frame(self.root_frame)
-        left.place(relx=0.03, rely=0.22, relwidth=0.24, relheight=0.64)
-
-        ttk.Label(left, text="Tickers", font=("Helvetica", 14, "bold")).pack(anchor="w", pady=(0, 8))
-
-        self.ticker_list = ttk.Treeview(left, show="tree", selectmode="browse")
-        self.ticker_list.pack(fill="both", expand=True)
-
-        # Tag colors for left list
-        self.ticker_list.tag_configure("pos", foreground=GREEN)
-        self.ticker_list.tag_configure("neg", foreground=RED)
-        self.ticker_list.tag_configure("neu", foreground=GREY)
-        self.ticker_list.tag_configure("na", foreground=GREY)
-
-        # Center buttons (2 buttons stacked)
+        # Center buttons near top
         btn_frame = ttk.Frame(self.root_frame)
-        btn_frame.place(relx=0.34, rely=0.12, relwidth=0.62, relheight=0.14)
+        btn_frame.place(relx=0.5, rely=0.12, anchor="n")  # center horizontally
 
-        self.btn_scan = ttk.Button(btn_frame, text="Run Reddit Scan + Update", command=self.run_scan)
-        self.btn_refresh = ttk.Button(btn_frame, text="Refresh Growth Table", command=self.refresh_growth)
+        self.btn_scan = ttk.Button(
+            btn_frame,
+            text="Run Reddit Scan + Update",
+            style="Primary.TButton",
+            command=self.run_scan
+        )
+        self.btn_refresh = ttk.Button(
+            btn_frame,
+            text="Refresh Growth Table",
+            style="Secondary.TButton",
+            command=self.refresh_growth
+        )
 
-        self.btn_scan.pack(pady=(0, 8))
+        # stacked, centered
+        self.btn_scan.pack(pady=(0, 10))
         self.btn_refresh.pack()
 
-        # Right table panel
-        right = ttk.Frame(self.root_frame)
-        right.place(relx=0.30, rely=0.28, relwidth=0.67, relheight=0.58)
+        # Centered table container
+        table_frame = ttk.Frame(self.root_frame)
+        table_frame.place(relx=0.5, rely=0.30, relwidth=0.78, relheight=0.60, anchor="n")
 
-        ttk.Label(right, text="Growth Table", font=("Helvetica", 14, "bold")).pack(anchor="w", pady=(0, 8))
+        header_row = ttk.Frame(table_frame)
+        header_row.pack(fill="x", pady=(0, 10))
+
+        ttk.Label(header_row, text="Growth Table", font=("Helvetica", 16, "bold")).pack(anchor="w")
 
         self.table = ttk.Treeview(
-            right,
+            table_frame,
             columns=("Ticker", "Price", "Original Run", "Growth%"),
             show="headings",
             selectmode="browse"
@@ -132,11 +144,22 @@ class App(tk.Tk):
         self.table.heading("Growth%", text="Growth%")
 
         self.table.column("Ticker", width=90, anchor="w")
-        self.table.column("Price", width=120, anchor="e")
-        self.table.column("Original Run", width=140, anchor="w")
+        self.table.column("Price", width=140, anchor="e")
+        self.table.column("Original Run", width=160, anchor="w")
         self.table.column("Growth%", width=140, anchor="e")
 
-        self.table.pack(fill="both", expand=True)
+        # Row background tags
+        self.table.tag_configure("pos", background=ROW_POS_BG)
+        self.table.tag_configure("neg", background=ROW_NEG_BG)
+        self.table.tag_configure("neu", background=ROW_NEU_BG)
+        self.table.tag_configure("na", background=ROW_NEU_BG)
+
+        # scrollbar
+        scroll = ttk.Scrollbar(table_frame, orient="vertical", command=self.table.yview)
+        self.table.configure(yscrollcommand=scroll.set)
+
+        self.table.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
 
     def _redraw_background(self):
         self.bg_canvas.delete("all")
@@ -171,9 +194,7 @@ class App(tk.Tk):
         self.config(cursor="watch" if busy else "")
         self.update_idletasks()
 
-    def _clear_views(self):
-        for item in self.ticker_list.get_children():
-            self.ticker_list.delete(item)
+    def _clear_table(self):
         for item in self.table.get_children():
             self.table.delete(item)
 
@@ -182,7 +203,7 @@ class App(tk.Tk):
         final_output_list is exactly what your code returns: list of (ticker, stats_dict)
         stats_dict has keys: "Price", "Original Run", "Growth %"
         """
-        self._clear_views()
+        self._clear_table()
 
         for ticker, stats in final_output_list:
             price = stats.get("Price", None)
@@ -190,26 +211,20 @@ class App(tk.Tk):
             growth_str = stats.get("Growth %", None)
 
             growth_val = _parse_growth(growth_str)
+
             if growth_val is None:
                 tag = "na"
                 growth_display = "N/A"
             else:
-                # Neutral band: very close to 0%
                 if abs(growth_val) < 0.01:
                     tag = "neu"
                 elif growth_val > 0:
                     tag = "pos"
                 else:
                     tag = "neg"
-
                 growth_display = f"{growth_val:.2f}%"
 
-            # Left list item: "TICKER   +x.xx%"
-            display = f"{ticker: <6}  {growth_display}"
-            self.ticker_list.insert("", "end", text=display, tags=(tag,))
-
-            # Right table row
-            self.table.insert("", "end", values=(ticker, price, date, growth_display))
+            self.table.insert("", "end", values=(ticker, price, date, growth_display), tags=(tag,))
 
     def refresh_growth(self, auto=False):
         """
