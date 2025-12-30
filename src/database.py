@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_PATH = "user_database.db"
+DB_PATH = "../data/user_database.db"
 CREATE_SQL = """
 CREATE TABLE IF NOT EXISTS scan_input (
     stock TEXT,

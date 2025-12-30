@@ -15,7 +15,6 @@ def add_financials(input_list):
         stats["price"] = float(last_price)
 
     return input_list
-
 def _safe_latest_price(ticker: str):
     try:
         last_price = yf.Ticker(ticker).history(period="1d", interval="1m")["Close"].iloc[-1]

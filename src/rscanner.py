@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
-load_dotenv("local_keys.env")
+load_dotenv("../local_keys.env")
 from datetime import date
+from pathlib import Path
 import praw
 import time
 import sqlite3
@@ -13,7 +14,7 @@ HARDLOCK_MINUTES_BACK = 10000
 now_date = date.today().isoformat()
 
 # Data Base
-conn = sqlite3.connect("database.db")
+conn = sqlite3.connect("user_database.db")
 cursor = conn.cursor()
 
 # Reddit API
@@ -58,18 +59,18 @@ ignore_words = ["CUZ", "ALOT", "TFSA"]
 
 # English Words + Tickers
 def english_words(file="words.txt"):
-    english_words = []
-    csv_file = open(file, "r")
-    try:
-        for line in csv_file:
-            line = line.upper().strip()
-            if line != "":
-                english_words.append(line)
-    finally:
-        csv_file.close()
+    base = Path(__file__).resolve().parent.parent
+    path = base / "data" / file
 
+    english_words = []
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.upper().strip()
+            if line:
+                english_words.append(line)
     return english_words
-def ticker_generation(path="ticker.cvs"):
+def ticker_generation(path="ticker.csv"):
+    path = Path(__file__).resolve().parent.parent / "data" / "ticker.csv"
     tickers = []
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
