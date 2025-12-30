@@ -1,5 +1,5 @@
-# Reddit Sentiment Scanner (Growth Table + UI)
-
+# Reddit Sentiment Scanner (Hype Scanner)
+ 
 A Python app that scans Reddit posts/comments for ticker mentions, scores sentiment using bull/bear keywords, stores results in SQLite, and shows a clean UI growth table that tracks price performance since the first recorded run.
 
 The point of this project is to find the coorelation of reddit "hype" to the price movements of stocks. Multiple subreddits exist which users comment and post their knowledge and opinions on specific companies. Reddit users are likely to react rather than predic; this project is prove whether either is true.
@@ -24,13 +24,7 @@ The point of this project is to find the coorelation of reddit "hype" to the pri
   - Displays a scrollable table in the UI
 
 ## Screenshots
-
-Add your screenshot here:
-- `docs/screenshot.png` (recommended)
-
-Example:
-![UI Screenshot](docs/screenshot.png)
-
+- docs/screenshot.png (recommended)
 ---
 
 ## Requirements
