@@ -1,5 +1,5 @@
-# Reddit Sentiment Scanner (Growth Table + UI)
-
+# Reddit Sentiment Scanner (Hype Scanner)
+ 
 A Python app that scans Reddit posts/comments for ticker mentions, scores sentiment using bull/bear keywords, stores results in SQLite, and shows a clean UI growth table that tracks price performance since the first recorded run.
 
 The point of this project is to find the coorelation of reddit "hype" to the price movements of stocks. Multiple subreddits exist which users comment and post their knowledge and opinions on specific companies. Reddit users are likely to react rather than predic; this project is prove whether either is true.
@@ -24,13 +24,7 @@ The point of this project is to find the coorelation of reddit "hype" to the pri
   - Displays a scrollable table in the UI
 
 ## Screenshots
-
-Add your screenshot here:
-- `docs/screenshot.png` (recommended)
-
-Example:
-![UI Screenshot](docs/screenshot.png)
-
+- ![UI Screenshot](docs/screenshot.png)
 ---
 
 ## Requirements
@@ -38,3 +32,27 @@ Example:
 - Python 3.10+ (recommended: Python 3.11)
 - Internet connection (Reddit + yfinance)
 - Reddit API credentials (required for scanning)
+- install via 'requirements.txt'
+
+## Reddit API setup (required to run scans)
+
+The app needs Reddit API credentials to access Reddit data via PRAW.
+
+### 1) Create a Reddit App (get your keys)
+1. Log in to Reddit.
+2. Go to **User Settings → Safety & Privacy → Manage third-party app authorization**  
+   (or search “Reddit apps prefs” and open the page).
+3. Scroll to **Developed Applications** and click **Create App** (or **Create another app**).
+
+After creating it, you will see:
+- **client_id**
+- **client_secret**
+
+### 2) Create the `.env` file (in the project root)
+In the **same folder as** `README.md` and `requirements.txt`, create a file named `.env`.
+
+Mac/Linux:
+```bash
+cd <your-project-folder>
+touch .env
+
