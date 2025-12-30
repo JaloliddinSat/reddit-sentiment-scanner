@@ -25,7 +25,6 @@ The point of this project is to find the coorelation of reddit "hype" to the pri
 
 ## Screenshots
 - ![UI Screenshot](docs/screenshot.png)
----
 
 ## Requirements
 
