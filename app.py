@@ -25,7 +25,7 @@ BTN_WHITE_BORDER = "#E6E2DC"
 BTN_WHITE_HOVER = "#FAF8F5"
 BTN_WHITE_TEXT = "#222222"
 
-ROW_HOVER = "#F7F4EF"
+ROW_HOVER = "#f7f7f6"
 
 PILL_RED_BG = "#F9E7E7"
 PILL_RED_TEXT = "#D94B4B"
@@ -53,18 +53,18 @@ def parse_growth(growth_str):
 
 def round_rect(canvas, x1, y1, x2, y2, r, **kwargs):
     points = [
-        x1+r, y1,
-        x2-r, y1,
+        x1 + r, y1,
+        x2 - r, y1,
         x2, y1,
-        x2, y1+r,
-        x2, y2-r,
+        x2, y1 + r,
+        x2, y2 - r,
         x2, y2,
-        x2-r, y2,
-        x1+r, y2,
+        x2 - r, y2,
+        x1 + r, y2,
         x1, y2,
-        x1, y2-r,
-        x1, y1+r,
-        x1, y1
+        x1, y2 - r,
+        x1, y1 + r,
+        x1, y1,
     ]
     return canvas.create_polygon(points, smooth=True, splinesteps=36, **kwargs)
 
@@ -139,7 +139,6 @@ class App(tk.Tk):
     def on_scrollbar(self, *args):
         if not self._row_data:
             return
-
         total = len(self._row_data)
         visible = self._visible_rows
         if visible <= 0:
@@ -178,7 +177,7 @@ class App(tk.Tk):
         if visible <= 0:
             return
 
-        # normalize direction
+        # normalize direction across platforms
         if hasattr(e, "num") and e.num in (4, 5):
             direction = -1 if e.num == 4 else 1
         else:
@@ -214,7 +213,7 @@ class App(tk.Tk):
 
         # shadow
         for dx, dy, col in [(10, 12, "#ECE9E4"), (6, 8, "#E2DED8"), (3, 4, "#D9D5CF")]:
-            round_rect(self.canvas, card_x1+dx, card_y1+dy, card_x2+dx, card_y2+dy, 26, fill=col, outline="")
+            round_rect(self.canvas, card_x1 + dx, card_y1 + dy, card_x2 + dx, card_y2 + dy, 26, fill=col, outline="")
 
         # card
         round_rect(self.canvas, card_x1, card_y1, card_x2, card_y2, 26, fill=CARD, outline=BORDER, width=1)
@@ -222,7 +221,7 @@ class App(tk.Tk):
         # buttons row (centered)
         btn_y = card_y1 + 65
         self.btn_scan_box = self.draw_button(
-            cx=(w/2) - 145,
+            cx=(w / 2) - 145,
             y=btn_y,
             width=320,
             height=48,
@@ -230,11 +229,10 @@ class App(tk.Tk):
             outline="",
             text="Run Reddit Scan + Update",
             text_color=BTN_BLUE_TEXT,
-            shadow=True
+            shadow=True,
         )
-
         self.btn_refresh_box = self.draw_button(
-            cx=(w/2) + 230,
+            cx=(w / 2) + 230,
             y=btn_y,
             width=280,
             height=48,
@@ -242,20 +240,27 @@ class App(tk.Tk):
             outline=BTN_WHITE_BORDER,
             text="Refresh Growth Table",
             text_color=BTN_WHITE_TEXT,
-            shadow=False
+            shadow=False,
         )
 
         # title + loading (left-aligned with table)
         title_y = btn_y + 110
         title_x = card_x1 + 60
-        self.canvas.create_text(title_x, title_y, text="Growth Table",
-                                font=("Helvetica", 22, "bold"),
-                                fill=TEXT, anchor="w")
-
+        self.canvas.create_text(
+            title_x, title_y,
+            text="Growth Table",
+            font=("Helvetica", 22, "bold"),
+            fill=TEXT,
+            anchor="w",
+        )
         if self._busy:
-            self.canvas.create_text(title_x, title_y + 26, text="Loading…",
-                                    font=("Helvetica", 12),
-                                    fill=LOADING_TEXT, anchor="w")
+            self.canvas.create_text(
+                title_x, title_y + 26,
+                text="Loading…",
+                font=("Helvetica", 12),
+                fill=LOADING_TEXT,
+                anchor="w",
+            )
 
         # table card
         table_x1 = card_x1 + 60
@@ -271,13 +276,17 @@ class App(tk.Tk):
                    fill=HEADER_BG, outline="", width=0)
         self.canvas.create_line(table_x1, table_y1 + header_h, table_x2, table_y1 + header_h, fill=GRID, width=1)
 
-        # columns
+        # columns: Ticker | Mentions | Bull | Bear | Price | Original Run | Growth%
         cols = [
-            ("Ticker", 0.18, "left"),
-            ("Price", 0.22, "center"),
-            ("Original Run", 0.34, "center"),
-            ("Growth%", 0.26, "right"),
+            ("Ticker", 0.14, "left"),
+            ("Mentions", 0.11, "center"),
+            ("Bull", 0.09, "center"),
+            ("Bear", 0.09, "center"),
+            ("Price", 0.14, "center"),
+            ("Original Run", 0.27, "center"),
+            ("Growth%", 0.16, "right"),
         ]
+
         total_w = table_x2 - table_x1
         xs = [table_x1]
         x = table_x1
@@ -286,7 +295,7 @@ class App(tk.Tk):
             xs.append(x)
 
         for i, (name, _frac, align) in enumerate(cols):
-            cx1, cx2 = xs[i], xs[i+1]
+            cx1, cx2 = xs[i], xs[i + 1]
             if align == "left":
                 tx, anchor = cx1 + 24, "w"
             elif align == "right":
@@ -294,7 +303,7 @@ class App(tk.Tk):
             else:
                 tx, anchor = (cx1 + cx2) / 2, "center"
 
-            self.canvas.create_text(tx, table_y1 + header_h/2 + 1,
+            self.canvas.create_text(tx, table_y1 + header_h / 2 + 1,
                                     text=name, font=("Helvetica", 12),
                                     fill=HEADER_TEXT, anchor=anchor)
 
@@ -307,43 +316,73 @@ class App(tk.Tk):
         row_h = 58
 
         self._rows_area = (table_x1, rows_y1, table_x2, rows_y2)
-
         self._rows = []
+
         self._visible_rows = max(0, int((rows_y2 - rows_y1) // row_h))
         total_rows = len(self._row_data)
 
-        max_off = self._clamp_scroll(total_rows, self._visible_rows)
+        self._clamp_scroll(total_rows, self._visible_rows)
         start = self._scroll_offset
         end = start + self._visible_rows
         shown = self._row_data[start:end]
 
-        # scrollbar update / placement
-        if total_rows <= self._visible_rows or self._visible_rows == 0:
+        # scrollbar update / placement (reserve space so it doesn't overlap Growth pill)
+        sb_w = 14
+        sb_visible = (total_rows > self._visible_rows and self._visible_rows > 0)
+
+        if not sb_visible:
             self.vscroll.place_forget()
+            content_right = table_x2
         else:
-            sb_w = 14
-            self.vscroll.place(x=table_x2 - sb_w - 8, y=rows_y1 + 6, width=sb_w, height=(rows_y2 - rows_y1) - 12)
+            # place inside the table, on the far right, leaving padding
+            self.vscroll.place(
+                x=table_x2 - sb_w - 8,
+                y=rows_y1 + 6,
+                width=sb_w,
+                height=(rows_y2 - rows_y1) - 12,
+            )
             first = start / total_rows
             last = min(1.0, (start + self._visible_rows) / total_rows)
             self.vscroll.set(first, last)
+
+            # reserve space so Growth% pill doesn't sit under scrollbar
+            content_right = table_x2 - (sb_w + 16)
 
         for i, (ticker, stats) in enumerate(shown):
             y1 = rows_y1 + i * row_h
             y2 = y1 + row_h
 
             bg = ROW_HOVER if self._hover_idx == i else "#FFFFFF"
-            self.canvas.create_rectangle(table_x1+1, y1, table_x2-1, y2, fill=bg, outline="")
+            self.canvas.create_rectangle(table_x1 + 1, y1, table_x2 - 1, y2, fill=bg, outline="")
             self.canvas.create_line(table_x1 + 22, y2, table_x2 - 22, y2, fill=GRID, width=1)
 
+            # values (these keys should come from get_growth_table() output)
+            mentions = stats.get("Mentions", "")
+            bull = stats.get("Bull", "")
+            bear = stats.get("Bear", "")
             price = stats.get("Price", "N/A")
             date = stats.get("Original Run", "")
             growth_str = stats.get("Growth %", None)
+
+            # display formatting
+            def _intish(v):
+                if v is None:
+                    return ""
+                try:
+                    return str(int(v))
+                except Exception:
+                    return str(v)
+
+            mentions_disp = _intish(mentions)
+            bull_disp = _intish(bull)
+            bear_disp = _intish(bear)
 
             try:
                 price_disp = f"{float(price):.2f}"
             except Exception:
                 price_disp = str(price)
 
+            # growth pill
             g = parse_growth(growth_str)
             if g is None:
                 g_disp = "N/A"
@@ -361,56 +400,60 @@ class App(tk.Tk):
                     pill_bg, pill_fg = PILL_RED_BG, PILL_RED_TEXT
                     arrow = "▲"
 
-            self.canvas.create_text(xs[0] + 24, (y1+y2)/2 + 1,
-                                    text=str(ticker),
-                                    font=("Helvetica", 16),
-                                    fill=TEXT, anchor="w")
+            midy = (y1 + y2) / 2 + 1
 
-            self.canvas.create_text((xs[1] + xs[2])/2, (y1+y2)/2 + 1,
-                                    text=price_disp,
-                                    font=("Helvetica", 16),
-                                    fill=TEXT, anchor="center")
+            # Ticker (left)
+            self.canvas.create_text(xs[0] + 24, midy, text=str(ticker),
+                                    font=("Helvetica", 16), fill=TEXT, anchor="w")
 
-            self.canvas.create_text((xs[2] + xs[3])/2, (y1+y2)/2 + 1,
-                                    text=str(date),
-                                    font=("Helvetica", 16),
-                                    fill=TEXT, anchor="center")
+            # Mentions / Bull / Bear / Price / Original Run (center)
+            self.canvas.create_text((xs[1] + xs[2]) / 2, midy, text=mentions_disp,
+                                    font=("Helvetica", 16), fill=TEXT, anchor="center")
+            self.canvas.create_text((xs[2] + xs[3]) / 2, midy, text=bull_disp,
+                                    font=("Helvetica", 16), fill=TEXT, anchor="center")
+            self.canvas.create_text((xs[3] + xs[4]) / 2, midy, text=bear_disp,
+                                    font=("Helvetica", 16), fill=TEXT, anchor="center")
+            self.canvas.create_text((xs[4] + xs[5]) / 2, midy, text=price_disp,
+                                    font=("Helvetica", 16), fill=TEXT, anchor="center")
+            self.canvas.create_text((xs[5] + xs[6]) / 2, midy, text=str(date),
+                                    font=("Helvetica", 16), fill=TEXT, anchor="center")
 
-            pill_w, pill_h = 132, 34
-            px2 = xs[4] - 26
+            # Growth pill (right)
+            pill_w, pill_h = 122, 34
+            px2 = min(content_right - 26, xs[7] - 26)  # keep inside content area
             px1 = px2 - pill_w
-            py1 = (y1+y2)/2 - pill_h/2
+            py1 = (y1 + y2) / 2 - pill_h / 2
             py2 = py1 + pill_h
 
             round_rect(self.canvas, px1, py1, px2, py2, 10, fill=pill_bg, outline="", width=0)
-            self.canvas.create_text(px1 + 16, (py1+py2)/2 + 1,
+            self.canvas.create_text(px1 + 14, (py1 + py2) / 2 + 1,
                                     text=g_disp, font=("Helvetica", 14),
                                     fill=pill_fg, anchor="w")
             if arrow:
-                self.canvas.create_text(px2 - 18, (py1+py2)/2 + 1,
+                self.canvas.create_text(px2 - 16, (py1 + py2) / 2 + 1,
                                         text=arrow, font=("Helvetica", 10),
                                         fill=pill_fg, anchor="e")
 
-            # hover hitbox (index is visible-row index, not global)
+            # hover hitbox (visible-row index)
             self._rows.append((table_x1, y1, table_x2, y2))
 
-        # ensure scroll offset always valid after resize
+        # keep scroll offset valid after resizes
         if total_rows > 0:
             self._clamp_scroll(total_rows, self._visible_rows)
 
     def draw_button(self, cx, y, width, height, fill, outline, text, text_color, shadow=False):
-        x1 = cx - width/2
+        x1 = cx - width / 2
         y1 = y
-        x2 = cx + width/2
+        x2 = cx + width / 2
         y2 = y + height
 
         if shadow:
-            round_rect(self.canvas, x1, y1+3, x2, y2+3, 12, fill="#D8D3CC", outline="", width=0)
+            round_rect(self.canvas, x1, y1 + 3, x2, y2 + 3, 12, fill="#D8D3CC", outline="", width=0)
 
         round_rect(self.canvas, x1, y1, x2, y2, 12, fill=fill,
                    outline=outline if outline else "", width=1 if outline else 0)
 
-        self.canvas.create_text((x1+x2)/2, (y1+y2)/2 + 1,
+        self.canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2 + 1,
                                 text=text, font=("Helvetica", 13),
                                 fill=text_color, anchor="center")
 

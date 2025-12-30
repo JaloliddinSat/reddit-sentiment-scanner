@@ -1,27 +1,37 @@
-from rscanner import ticker_generation, pick_time, post_scan, add_data, sort
 import sqlite3
-from sqlite3 import connect
-from setuptools.installer import fetch_build_egg
 
 DB_PATH = "user_database.db"
-CREATE_SQL = "CREATE TABLE IF NOT EXISTS scan_input (stock TEXT, score INTEGER, time_of_run TEXT, price FLOAT)"
-
+CREATE_SQL = """
+CREATE TABLE IF NOT EXISTS scan_input (
+    stock TEXT,
+    mentions INTEGER,
+    bull INTEGER,
+    bear INTEGER,
+    score INTEGER,
+    time_of_run TEXT,
+    price FLOAT
+)
+"""
 # function
 def _connect():
     conn = sqlite3.connect(DB_PATH)
     conn.execute(CREATE_SQL)
     return conn
-def insert_db(par1, par2, par3, par4):
+def insert_db(par1, par2, par3, par4, par5, par6, par7):
     conn = _connect()
     curr = conn.cursor()
 
-    sql_insert = "INSERT INTO scan_input (stock, score, time_of_run, price) VALUES (?, ?, ?, ?)"
-    curr.execute(sql_insert, (par1, par2, par3, par4))
+    sql_insert = """
+    INSERT INTO scan_input (stock, mentions, bull, bear, score, time_of_run, price)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """
+    curr.execute(sql_insert, (par1, par2, par3, par4, par5, par6, par7))
 
     conn.commit()
     conn.close()
+
 def print_select(arg):
-    allowed = ["stock", "score", "time_of_run", "price"]
+    allowed = ["stock", "mentions", "bull", "bear", "score", "time_of_run", "price"]
 
     conn = _connect()
     curr = conn.cursor()
@@ -44,10 +54,18 @@ def print_select(arg):
     return results
 def gather_values(rscanner_data):
     ticker = rscanner_data[0]
-    score = rscanner_data[1]["score"]
-    date = rscanner_data[1]["date"]
-    price = rscanner_data[1]["price"]
-    return ticker, score, date, price
+    stats = rscanner_data[1]
+
+    mentions = stats["mentions"]
+    bull = stats["bull"]
+    bear = stats["bear"]
+    score = stats["score"]
+    date = stats["date"]
+    price = stats["price"]
+
+    # matches INSERT column order
+    return ticker, mentions, bull, bear, score, date, price
+
 def main_database(top_3):
     if not top_3:
         print("No tickers are inserted to database.")
@@ -55,8 +73,8 @@ def main_database(top_3):
     db_ticker_list = print_select("stock")
 
     for idx, item in enumerate(top_3[:3], start=1):
-        ticker, score, date, price = gather_values(item)
+        ticker, mentions, bull, bear, score, date, price = gather_values(item)
 
         if (ticker,) not in db_ticker_list:
-            insert_db(ticker, score, date, price)
+            insert_db(ticker, mentions, bull, bear, score, date, price)
             print(f"{ticker} was added from ticker{idx}!")

@@ -26,7 +26,7 @@ def _safe_latest_price(ticker: str):
     except Exception:
         return None
 def get_growth_table():
-    select = ["stock", "price", "time_of_run"]
+    select = ["stock", "mentions", "bull", "bear", "price", "time_of_run"]
     db_data = print_select(select)
     final_output.clear()
     db_stock.clear()
@@ -34,16 +34,18 @@ def get_growth_table():
     db_date.clear()
 
 
-    for ticker, price, date in db_data:
+    for ticker, mentions, bull, bear, price, date in db_data:
         db_stock.append(ticker)
         db_price.append(price)
         db_date.append(date)
 
-    for ticker, price, date in db_data:
-        price_now = float(yf.Ticker(ticker).history(period="1d", interval="1m")["Close"].iloc[-1])
 
-        # FINAL OUTPUT
+    for ticker, mentions, bull, bear, price, date in db_data:
+        price_now = float(yf.Ticker(ticker).history(period="1d", interval="1m")["Close"].iloc[-1])
         final_output[ticker] = {
+            "Mentions": mentions,
+            "Bull": bull,
+            "Bear": bear,
             "Price": price,
             "Original Run": date,
             "Growth %": f"{(100 * ((price_now / price) - 1))}%"
