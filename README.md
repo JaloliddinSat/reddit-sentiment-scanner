@@ -24,7 +24,7 @@ The point of this project is to find the coorelation of reddit "hype" to the pri
   - Displays a scrollable table in the UI
 
 ## Screenshots
-- docs/screenshot.png (recommended)
+![UI Screenshot](docs/screenshot.png)
 ---
 
 ## Requirements
