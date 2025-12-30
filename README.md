@@ -50,8 +50,8 @@ After creating it, you will see:
 In the **same folder as** `README.md` and `requirements.txt`, create a file named `.env`.
 Here is the template that you **need** to follow:
 
-REDDIT_CLIENT_ID=PASTE_CLIENT_ID_HERE
-REDDIT_CLIENT_SECRET=PASTE_CLIENT_SECRET_HERE
+- REDDIT_CLIENT_ID=PASTE_CLIENT_ID_HERE
+- REDDIT_CLIENT_SECRET=PASTE_CLIENT_SECRET_HERE
 
 
 Mac/Linux:
