@@ -73,10 +73,5 @@ def main():
     _, df = run_full_pipeline()
     print(f"Sorted by Score: \n {df} \n")
 
-
-
-
-
-
 if __name__ == "__main__":
     main()
