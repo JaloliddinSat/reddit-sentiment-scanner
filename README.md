@@ -31,7 +31,6 @@ The point of this project is to find the coorelation of reddit "hype" to the pri
 - Python 3.10+ (recommended: Python 3.11)
 - Internet connection (Reddit + yfinance)
 - Reddit API credentials (required for scanning)
-- install via 'requirements.txt'
 
 ## Reddit API setup (required to run scans)
 
@@ -50,10 +49,10 @@ After creating it, you will see:
 ### 2) Create the `.env` file (in the project root)
 In the **same folder as** `README.md` and `requirements.txt`, create a file named `.env`.
 Here is the template that you **need** to follow:
-```bash
+
 REDDIT_CLIENT_ID=PASTE_CLIENT_ID_HERE
 REDDIT_CLIENT_SECRET=PASTE_CLIENT_SECRET_HERE
-```
+
 
 Mac/Linux:
 ```bash
@@ -72,4 +71,13 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python src/app.py
+```
+
+Windows (Powershell):
+``` bash
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python src/app.py
+```
 
